@@ -60,6 +60,14 @@ pacemaker_primitive vip_primitive do
 end
 transaction_objects << "pacemaker_primitive[#{vip_primitive}]"
 
+location_name = "l-#{vip_primitive}-controller"
+pacemaker_location location_name do
+  definition controller_only_location(location_name, vip_primitive)
+  action :update
+  only_if { CrowbarPacemakerHelper.is_cluster_founder?(node) }
+end
+transaction_objects << "pacemaker_location[#{location_name}]"
+
 # We run the resource agent "ocf:heartbeat:pgsql" without params, instead of
 # something like:
 #  params ({
